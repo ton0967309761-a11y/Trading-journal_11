@@ -113,6 +113,9 @@ ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:11px}
 .cell.img svg{stroke:#8d8d88}
 .cell.img:hover{border-color:rgba(182,154,99,.25);box-shadow:0 0 20px rgba(182,154,99,.06)}
 .cell.img:hover svg{stroke:var(--gold2);transform:scale(1.08)}
+/* Gold outline on left technique buttons when at least one image exists */
+.cell.img.has-strategy-images{border:1.5px solid #d6ad45;box-shadow:inset 0 0 0 1px rgba(214,173,69,.2),0 0 0 1px rgba(214,173,69,.45),0 0 16px rgba(214,173,69,.16)}
+.cell.img.has-strategy-images svg{stroke:#e6c45e}
 
 .cell.ok{
   background:linear-gradient(145deg,#171a19,#0f1110);
@@ -202,6 +205,246 @@ ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:11px}
 @keyframes viewerIn{from{opacity:0}to{opacity:1}}
 @keyframes imageIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
 
+
+/* Left-side technique image grid only */
+#strategyGallery{display:none;width:min(900px,100%);margin:0 auto;padding-top:18px}
+#strategyGallery.active{display:block}
+.strategy-gallery-title{text-align:center;color:var(--white);font-size:1.35rem;font-weight:500;margin:0 0 24px}
+.strategy-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.strategy-slot{position:relative;aspect-ratio:1/1;min-width:0;border:1px dashed rgba(182,154,99,.4);border-radius:16px;background:rgba(255,255,255,.025);color:var(--muted);cursor:pointer;overflow:hidden;display:grid;place-items:center;font:inherit;transition:border-color .2s,background .2s}
+.strategy-slot:hover{border-color:var(--gold);background:rgba(182,154,99,.06)}
+.strategy-slot img{width:100%;height:100%;object-fit:contain;display:block}
+.strategy-slot .strategy-add{font-size:.9rem;text-align:center;padding:8px}
+.strategy-slot .strategy-remove{position:absolute;top:7px;right:7px;width:28px;height:28px;border:0;border-radius:50%;background:rgba(0,0,0,.8);color:white;font-size:20px;cursor:pointer;z-index:2}
+@media(max-width:520px){.strategy-slots{gap:8px}.strategy-slot{border-radius:10px}.strategy-slot .strategy-add{font-size:.72rem}}
+
+/* Right-side trade journal: 1-100 rows x 8 data columns */
+.journal-page{
+  min-height:100vh;
+  padding:78px 18px 60px;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(182,154,99,.045),transparent 30%),
+    linear-gradient(145deg,#070707,#0b0b0b);
+  animation:pageFade .4s ease both;
+}
+.journal-wrap{
+  width:min(1180px,100%);
+  margin:0 auto;
+}
+.journal-title{
+  text-align:center;
+  margin:0 auto 22px;
+  padding:8px 8px 18px;
+}
+.journal-kicker{
+  color:var(--gold);
+  font-size:.65rem;
+  font-weight:600;
+  letter-spacing:.3em;
+}
+.journal-title h2{
+  margin-top:8px;
+  color:var(--white);
+  font-size:1.45rem;
+  font-weight:500;
+}
+.journal-title p{
+  margin-top:7px;
+  color:var(--muted);
+  font-family:"Mali",sans-serif;
+  font-size:.72rem;
+}
+.tp-summary{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin:0 0 14px;
+}
+.tp-summary-card{
+  min-width:0;
+  padding:13px 16px;
+  border:1px solid rgba(182,154,99,.32);
+  border-radius:13px;
+  background:linear-gradient(145deg,rgba(182,154,99,.10),rgba(255,255,255,.018));
+  text-align:center;
+}
+.tp-summary-card span{display:block;color:var(--gold2);font-size:.76rem;font-weight:600;letter-spacing:.05em;margin-bottom:5px}
+.tp-summary-card strong{display:block;color:var(--white);font-size:1.25rem;font-weight:600;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+@media(max-width:520px){.tp-summary{gap:7px}.tp-summary-card{padding:10px 5px}.tp-summary-card strong{font-size:1rem}}
+.winrate-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 14px}
+.winrate-summary-card{min-width:0;padding:13px 16px;border:1px solid rgba(182,154,99,.32);border-radius:13px;background:linear-gradient(145deg,rgba(75,145,105,.12),rgba(255,255,255,.018));text-align:center}
+.winrate-summary-card span{display:block;color:var(--gold2);font-size:.76rem;font-weight:600;letter-spacing:.05em;margin-bottom:5px}
+.winrate-summary-card strong{display:block;color:var(--white);font-size:1.25rem;font-weight:600;font-variant-numeric:tabular-nums}
+.winrate-summary-card small{display:block;color:var(--muted);font-size:.68rem;margin-top:4px}
+@media(max-width:520px){.winrate-summary{gap:7px}.winrate-summary-card{padding:10px 5px}.winrate-summary-card strong{font-size:1rem}}
+.journal-table-shell{
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:rgba(12,12,12,.82);
+  box-shadow:var(--shadow);
+  scrollbar-color:rgba(182,154,99,.35) #0b0b0b;
+}
+.journal-table{
+  width:100%;
+  min-width:900px;
+  border-collapse:separate;
+  border-spacing:0;
+  table-layout:fixed;
+}
+.journal-table th,
+.journal-table td{
+  height:46px;
+  padding:5px 7px;
+  border-right:1px solid rgba(255,255,255,.065);
+  border-bottom:1px solid rgba(255,255,255,.065);
+}
+.journal-table th{
+  position:sticky;
+  top:0;
+  z-index:3;
+  background:linear-gradient(145deg,#181510,#11100d);
+  color:var(--gold2);
+  font-size:.72rem;
+  font-weight:600;
+  letter-spacing:.04em;
+  text-align:center;
+  box-shadow:0 5px 15px rgba(0,0,0,.35);
+}
+.journal-table th:first-child{
+  width:54px;
+}
+.journal-table th:nth-child(2){width:135px}
+.journal-table th:nth-child(3){width:90px}
+.journal-table th:nth-child(4){width:120px}
+.journal-table th:nth-child(5){width:105px}
+.journal-table th:nth-child(6){width:120px}
+.journal-table th:nth-child(7),
+.journal-table th:nth-child(8),
+.journal-table th:nth-child(9){width:72px}
+.journal-table td{
+  background:rgba(255,255,255,.012);
+}
+.journal-table tr:hover td{
+  background:rgba(182,154,99,.025);
+}
+.journal-table th:last-child,
+.journal-table td:last-child{border-right:0}
+.journal-table tbody tr:last-child td{border-bottom:0}
+.row-number{
+  position:sticky;
+  left:0;
+  z-index:2;
+  width:54px;
+  min-width:54px;
+  text-align:center;
+  color:#888782;
+  background:#0d0d0d !important;
+  font-size:.72rem;
+  font-weight:500;
+}
+.journal-table input{
+  width:100%;
+  height:34px;
+  padding:0 8px;
+  border:1px solid transparent;
+  border-radius:8px;
+  outline:none;
+  background:rgba(255,255,255,.025);
+  color:var(--text);
+  font-family:"Inter","Mali",system-ui,sans-serif;
+  font-size:.72rem;
+  text-align:center;
+  transition:.2s;
+}
+.journal-table input:hover{
+  background:rgba(255,255,255,.045);
+}
+.journal-table input:focus{
+  background:rgba(182,154,99,.045);
+  border-color:rgba(182,154,99,.35);
+  box-shadow:0 0 0 3px rgba(182,154,99,.05);
+}
+.journal-table input::placeholder{color:#4f4f4c}
+
+/* Fix: Result cells #47 and #48 in trades 1–7 remain clickable */
+.journal-table td.result-cell-47-48-fix{position:relative;z-index:4;pointer-events:auto;}
+.journal-table input.result-row-47-48-fix{position:relative;z-index:5;pointer-events:auto;cursor:text;}
+
+/* Image column (column 9) */
+.journal-table th:nth-child(10){width:220px}
+.image-cell{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-height:34px;
+}
+.image-slot{
+  position:relative;
+  width:70px;
+  height:34px;
+  border:1px dashed rgba(182,154,99,.28);
+  border-radius:8px;
+  background:rgba(255,255,255,.02);
+  color:#777;
+  cursor:pointer;
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+  transition:.2s;
+  flex:0 0 70px;
+}
+.image-slot:hover{
+  border-color:rgba(182,154,99,.55);
+  background:rgba(182,154,99,.05);
+  color:var(--gold2);
+}
+.image-slot img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.image-slot .slot-add{
+  font-size:.62rem;
+  line-height:1;
+  text-align:center;
+}
+.image-slot .slot-remove{
+  position:absolute;
+  top:2px;
+  right:2px;
+  width:15px;
+  height:15px;
+  border:0;
+  border-radius:50%;
+  background:rgba(0,0,0,.78);
+  color:#ddd;
+  font-size:11px;
+  line-height:15px;
+  padding:0;
+  cursor:pointer;
+  z-index:2;
+}
+.image-slot .slot-remove:hover{color:var(--gold2)}
+.image-count{
+  position:absolute;
+  right:3px;
+  bottom:3px;
+  padding:1px 4px;
+  border-radius:4px;
+  background:rgba(0,0,0,.72);
+  color:#ddd;
+  font-size:.5rem;
+}
+@media(max-width:700px){
+  .journal-page{padding:72px 10px 45px}
+  .journal-title{margin-bottom:14px}
+  .journal-title h2{font-size:1.2rem}
+  .journal-table-shell{border-radius:14px}
+}
+
 @media(max-width:380px){
   #home{padding-left:12px;padding-right:12px}
   .row{grid-template-columns:48px 1fr 48px;gap:7px}
@@ -214,6 +457,101 @@ ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:11px}
 @media(prefers-reduced-motion:reduce){
   *,*:before,*:after{animation:none!important;transition:none!important}
 }
+
+/* === Luxury black & gold finish: subtle metallic frames and gentle shimmer === */
+:root{
+  --bg:#050505;--surface:#0d0c09;--surface2:#14110b;
+  --white:#fff7df;--text:#e8dfc8;--muted:#a69a7c;
+  --line:rgba(212,170,72,.28);--line2:rgba(255,211,105,.58);
+  --gold:#d4a943;--gold2:#ffe19a;
+  --shadow:0 22px 60px rgba(0,0,0,.68),0 0 22px rgba(210,160,48,.07);
+}
+body{
+ background:
+  radial-gradient(ellipse at 12% 5%,rgba(212,169,67,.095),transparent 28%),
+  radial-gradient(ellipse at 88% 18%,rgba(255,202,76,.065),transparent 25%),
+  radial-gradient(ellipse at 50% 100%,rgba(212,169,67,.045),transparent 38%),
+  linear-gradient(145deg,#030303,#0b0905 48%,#050505);
+}
+body:after{
+ content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.72;
+ background-image:radial-gradient(circle,rgba(255,244,190,1) 0 1.5px,rgba(255,196,57,.8) 2px,transparent 4px),radial-gradient(circle,rgba(255,210,95,.95) 0 1.2px,transparent 3px),radial-gradient(circle,rgba(255,236,160,.9) 0 1px,transparent 2.8px),radial-gradient(circle,rgba(255,174,28,.8) 0 1.4px,transparent 3.5px);
+ background-size:127px 149px,191px 173px,83px 109px,251px 227px;background-position:17px 22px,83px 101px,37px 71px,121px 43px;
+ filter:drop-shadow(0 0 3px rgba(255,190,45,.65));animation:goldDust 9s linear infinite, goldTwinkle 2.8s ease-in-out infinite alternate;
+}
+body>*{position:relative;z-index:1}
+@keyframes goldDust{0%{background-position:17px 22px,83px 101px,37px 71px,121px 43px;opacity:.48}50%{opacity:.95}100%{background-position:190px 219px,322px 352px,173px 241px,281px 293px;opacity:.48}}
+@keyframes goldTwinkle{0%{filter:brightness(.8) drop-shadow(0 0 2px rgba(255,190,45,.45))}100%{filter:brightness(1.65) drop-shadow(0 0 7px rgba(255,198,52,.95))}}
+.title,.row,.journal-table-shell,.tp-summary-card,.winrate-summary-card{
+ border:1px solid rgba(212,169,67,.58);
+ box-shadow:inset 0 1px 0 rgba(255,231,163,.12),inset 0 0 0 1px rgba(212,169,67,.08),0 12px 35px rgba(0,0,0,.58),0 0 16px rgba(212,169,67,.075);
+}
+.title{
+ background:linear-gradient(135deg,rgba(255,226,150,.07),rgba(255,255,255,.012) 42%,rgba(212,169,67,.035));
+}
+.title:after,.journal-table-shell:after{
+ content:"";position:absolute;pointer-events:none;inset:5px;border:1px solid rgba(255,218,119,.12);border-radius:inherit;
+}
+.title:after{inset:6px}
+.row{
+ background:linear-gradient(135deg,rgba(255,219,130,.075),rgba(255,255,255,.018) 42%,rgba(0,0,0,.28));
+ border-radius:17px;
+}
+.row:hover{
+ border-color:rgba(255,215,103,.9);
+ box-shadow:inset 0 1px 0 rgba(255,236,175,.2),0 15px 38px rgba(0,0,0,.7),0 0 22px rgba(255,190,54,.15);
+}
+.cell.img{border-color:rgba(218,174,68,.38)}
+.cell.img:hover{border-color:rgba(255,221,128,.85);box-shadow:0 0 18px rgba(255,194,61,.18)}
+.journal-page{
+ background:radial-gradient(ellipse at 50% 0%,rgba(212,169,67,.09),transparent 34%),linear-gradient(145deg,#040404,#0a0804 58%,#050505);
+}
+.tp-summary-card,.winrate-summary-card{
+ position:relative;overflow:hidden;
+ border-color:rgba(224,179,68,.68);border-radius:15px;
+ background:linear-gradient(145deg,rgba(255,218,126,.105),rgba(255,255,255,.018) 48%,rgba(0,0,0,.25));
+ box-shadow:inset 0 1px 0 rgba(255,239,180,.15),0 8px 24px rgba(0,0,0,.45),0 0 15px rgba(212,169,67,.08);
+}
+.tp-summary-card:before,.winrate-summary-card:before{
+ content:"";position:absolute;top:0;left:-120%;width:65%;height:100%;pointer-events:none;
+ background:linear-gradient(100deg,transparent,rgba(255,228,151,.12),transparent);transform:skewX(-18deg);animation:goldSweep 9s ease-in-out infinite;
+}
+.tp-summary-card:nth-child(2):before,.winrate-summary-card:nth-child(2):before{animation-delay:2s}
+.tp-summary-card:nth-child(3):before,.winrate-summary-card:nth-child(3):before{animation-delay:4s}
+@keyframes goldSweep{0%,72%,100%{left:-120%}38%{left:150%}}
+.tp-summary-card strong,.winrate-summary-card strong{color:#fff0bd;text-shadow:0 0 12px rgba(255,198,68,.18)}
+.tp-summary-card span,.winrate-summary-card span{color:var(--gold2)}
+.journal-table-shell{
+ position:relative;border-radius:16px;border-color:rgba(218,174,68,.62);
+ background:linear-gradient(145deg,rgba(255,220,130,.025),rgba(8,8,8,.96));
+ box-shadow:inset 0 0 0 2px rgba(212,169,67,.06),0 18px 45px rgba(0,0,0,.7),0 0 20px rgba(212,169,67,.09);
+}
+.journal-table th{
+ background:linear-gradient(145deg,#211a0b,#100e09);
+ color:#ffe6a0;border-bottom-color:rgba(218,174,68,.36);border-right-color:rgba(218,174,68,.16);
+}
+.journal-table th,.journal-table td{border-bottom-color:rgba(218,174,68,.15);border-right-color:rgba(218,174,68,.12)}
+.journal-table td{background:rgba(255,220,130,.012)}
+.journal-table tr:hover td{background:rgba(218,174,68,.055)}
+.row-number{color:#c2ad7a;background:#0d0b07!important}
+.journal-table input{
+ border-color:rgba(218,174,68,.12);background:rgba(255,255,255,.025);color:#f4ead1;
+}
+.journal-table input:hover{border-color:rgba(218,174,68,.38);background:rgba(255,220,130,.035)}
+.journal-table input:focus{border-color:#d9ad43;box-shadow:0 0 0 2px rgba(218,174,68,.12),0 0 12px rgba(218,174,68,.09)}
+.image-slot{border-color:rgba(218,174,68,.35);background:rgba(255,220,130,.025)}
+.image-slot:hover{border-color:#ffdf83;box-shadow:0 0 13px rgba(218,174,68,.13)}
+.back,.viewer-close{border-color:rgba(218,174,68,.4);color:#f0d58d;box-shadow:0 8px 28px rgba(0,0,0,.5),0 0 12px rgba(218,174,68,.08)}
+/* Bright but elegant gold sparkles visible across the first/home page */
+body:before{z-index:0;pointer-events:none;}
+.title,.row{position:relative;}
+.title:before,.row:before{content:"✦";position:absolute;z-index:3;pointer-events:none;color:#ffe6a0;font-size:13px;text-shadow:0 0 5px #ffbf28,0 0 12px #ffb000,0 0 22px rgba(255,191,45,.95);animation:goldStarPulse 2.2s ease-in-out infinite;}
+.title:before{right:10%;top:12%;font-size:17px;}
+.row:nth-of-type(odd):before{right:13px;top:13px;}
+.row:nth-of-type(even):before{right:34px;bottom:15px;animation-delay:.8s;}
+@keyframes goldStarPulse{0%,100%{opacity:.35;transform:scale(.72) rotate(0deg)}50%{opacity:1;transform:scale(1.35) rotate(45deg)}}
+@media(prefers-reduced-motion:reduce){body:after,.tp-summary-card:before,.winrate-summary-card:before,.title:before,.row:before{animation:none!important}}
+
 </style>
 </head>
 
@@ -228,10 +566,55 @@ ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:11px}
   <ul id="list"></ul>
 </main>
 
-<section id="blank" class="page blank" aria-label="หน้าว่าง">
+<section id="blank" class="page blank journal-page" aria-label="ตารางบันทึกการเทรด">
   <button class="back" id="backBtn" aria-label="ย้อนกลับ">
     <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
   </button>
+
+  <div id="strategyGallery" aria-label="รูปภาพท่าที่เลือก">
+    <h2 class="strategy-gallery-title" id="strategyGalleryTitle">ท่าที่ 1</h2>
+    <div class="strategy-slots" id="strategySlots"></div>
+  </div>
+
+  <div class="journal-wrap">
+    <div class="journal-title">
+      <div class="journal-kicker">TRADING JOURNAL</div>
+      <h2 id="journalHeading">ท่าที่ 1</h2>
+      <p>บันทึกการเทรด 1–100</p>
+    </div>
+
+    <div class="tp-summary" aria-label="สรุปรวม TP1 TP2 TP3">
+      <div class="tp-summary-card"><span>รวม TP1</span><strong id="tpTotal1">0</strong></div>
+      <div class="tp-summary-card"><span>รวม TP2</span><strong id="tpTotal2">0</strong></div>
+      <div class="tp-summary-card"><span>รวม TP3</span><strong id="tpTotal3">0</strong></div>
+    </div>
+
+    <div class="winrate-summary" aria-label="อัตราชนะ Winrate1 Winrate2 Winrate3">
+      <div class="winrate-summary-card"><span>Winrate1</span><strong id="winrate1">0%</strong><small id="winrateDetail1">0 / 0 รายการ</small></div>
+      <div class="winrate-summary-card"><span>Winrate2</span><strong id="winrate2">0%</strong><small id="winrateDetail2">0 / 0 รายการ</small></div>
+      <div class="winrate-summary-card"><span>Winrate3</span><strong id="winrate3">0%</strong><small id="winrateDetail3">0 / 0 รายการ</small></div>
+    </div>
+
+    <div class="journal-table-shell">
+      <table class="journal-table">
+        <thead>
+          <tr>
+            <th class="number-head">#</th>
+            <th>Date</th>
+            <th>TF</th>
+            <th>Order</th>
+            <th>เวลา</th>
+            <th>Result</th>
+            <th>TP1</th>
+            <th>TP2</th>
+            <th>TP3</th>
+            <th>รูปภาพ</th>
+          </tr>
+        </thead>
+        <tbody id="journalBody"></tbody>
+      </table>
+    </div>
+  </div>
 </section>
 
 <!-- Fullscreen image viewer -->
@@ -274,17 +657,9 @@ for(let i = 1; i <= 7; i++){
   const li = document.createElement('li');
   li.className = 'row';
 
-  const leftButton = i === 1
-    ? `
-      <button class="cell img has-image" data-image="1"
-        aria-label="เปิดรูปกราฟของท่าที่ 1">
-        <img class="trade-thumb" src="${tradeImage}" alt="กราฟท่าที่ 1">
-        <span class="image-badge"></span>
-      </button>
-    `
-    : `
+  const leftButton = `
       <button class="cell img" data-go="left-${i}"
-        aria-label="เปิดหน้าซ้ายของ ${def}">
+        aria-label="เปิดรูปภาพของ ${def}">
         ${imgIcon}
       </button>
     `;
@@ -327,10 +702,335 @@ for(let i = 1; i <= 7; i++){
 const home = document.getElementById('home');
 const blank = document.getElementById('blank');
 
+const journalBody = document.getElementById('journalBody');
+const journalHeading = document.getElementById('journalHeading');
+const JOURNAL_KEY = 'trade-journal-data';
+
+function loadJournalData(){
+  try { return JSON.parse(localStorage.getItem(JOURNAL_KEY)) || {}; }
+  catch(e) { return {}; }
+}
+
+function saveJournalData(data){
+  try { localStorage.setItem(JOURNAL_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+// คำนวณเฉพาะช่องของ TP แต่ละคอลัมน์เท่านั้น รองรับค่าตัวเลขและนิพจน์ เช่น 10-3+2
+function evaluateTpCell(value){
+  const text = String(value ?? '').trim().replace(/,/g, '');
+  if(!text) return 0;
+  if(!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:\s*[+-]\s*(?:\d+(?:\.\d*)?|\.\d+))*$/.test(text)) return 0;
+  const tokens = text.match(/[+-]?\s*(?:\d+(?:\.\d*)?|\.\d+)/g);
+  if(!tokens) return 0;
+  return tokens.reduce((sum, token) => sum + Number(token.replace(/\s/g,'')), 0);
+}
+
+function updateTpTotals(tradeData){
+  const totals = {tp1:0, tp2:0, tp3:0};
+  for(let row = 1; row <= 100; row++){
+    const rowData = tradeData[row] || {};
+    totals.tp1 += evaluateTpCell(rowData.tp1);
+    totals.tp2 += evaluateTpCell(rowData.tp2);
+    totals.tp3 += evaluateTpCell(rowData.tp3);
+  }
+  for(const [field, id] of [['tp1','tpTotal1'],['tp2','tpTotal2'],['tp3','tpTotal3']]){
+    const el = document.getElementById(id);
+    if(el) el.textContent = Number(totals[field].toFixed(8)).toLocaleString('en-US',{maximumFractionDigits:8});
+  }
+}
+
+// Winrate แยกคอลัมน์ TP1/TP2/TP3: นับค่าที่มากกว่า 0 เป็น 1 ชนะ,
+// ค่าศูนย์/ค่าติดลบเป็น 0; คิดเฉพาะแถวที่กรอกค่าไว้ ไม่ปนข้ามคอลัมน์
+function updateWinrates(tradeData){
+  const configs = [
+    {field:'tp1', rateId:'winrate1', detailId:'winrateDetail1'},
+    {field:'tp2', rateId:'winrate2', detailId:'winrateDetail2'},
+    {field:'tp3', rateId:'winrate3', detailId:'winrateDetail3'}
+  ];
+  for(const config of configs){
+    let wins = 0, entries = 0;
+    for(let row = 1; row <= 100; row++){
+      const raw = String(tradeData[row]?.[config.field] ?? '').trim();
+      if(!raw) continue;
+      // Ignore invalid expressions rather than counting them in the denominator.
+      if(!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:\s*[+-]\s*(?:\d+(?:\.\d*)?|\.\d+))*$/.test(raw.replace(/,/g,''))) continue;
+      entries++;
+      if(evaluateTpCell(raw) > 0) wins++;
+    }
+    const rate = entries ? (wins / entries) * 100 : 0;
+    const rateEl = document.getElementById(config.rateId);
+    const detailEl = document.getElementById(config.detailId);
+    if(rateEl) rateEl.textContent = `${Number(rate.toFixed(2)).toLocaleString('en-US',{maximumFractionDigits:2})}%`;
+    if(detailEl) detailEl.textContent = `${wins} / ${entries} รายการ`;
+  }
+}
+
+function buildJournal(tradeNo){
+  journalHeading.textContent = 'ท่าที่ ' + tradeNo;
+  journalBody.innerHTML = '';
+
+  const data = loadJournalData();
+  const tradeData = data[tradeNo] || {};
+  updateTpTotals(tradeData);
+  updateWinrates(tradeData);
+  const fields = ['date','tf','order','time','result','tp1','tp2','tp3'];
+  const types = ['date','text','text','time','text','text','text','text'];
+  const placeholders = ['','','','','','','',''];
+
+  for(let i = 1; i <= 100; i++){
+    const tr = document.createElement('tr');
+
+    const number = document.createElement('td');
+    number.className = 'row-number';
+    number.textContent = i;
+    tr.appendChild(number);
+
+    fields.forEach((field, index) => {
+      const td = document.createElement('td');
+      const input = document.createElement('input');
+      input.type = types[index];
+      input.value = tradeData[i]?.[field] || '';
+      input.placeholder = placeholders[index];
+      input.dataset.row = i;
+      input.dataset.field = field;
+      input.setAttribute('aria-label', `ท่าที่ ${tradeNo} แถว ${i} ${field}`);
+      // แก้เฉพาะช่อง Result แถว 47–48 ของท่าที่ 1–7 ให้รับการคลิกได้แน่นอน
+      if(field === 'result' && (i === 47 || i === 48) && tradeNo >= 1 && tradeNo <= 7){
+        input.classList.add('result-row-47-48-fix');
+        td.classList.add('result-cell-47-48-fix');
+      }
+
+      input.addEventListener('input', () => {
+        const latest = loadJournalData();
+        latest[tradeNo] ||= {};
+        latest[tradeNo][i] ||= {};
+        latest[tradeNo][i][field] = input.value;
+        saveJournalData(latest);
+        if(field === 'tp1' || field === 'tp2' || field === 'tp3'){ updateTpTotals(latest[tradeNo] || {}); updateWinrates(latest[tradeNo] || {}); }
+      });
+
+      td.appendChild(input);
+      tr.appendChild(td);
+    });
+
+    /* Column 9: up to 3 images per trade row */
+    const imageTd = document.createElement('td');
+    const imageCell = document.createElement('div');
+    imageCell.className = 'image-cell';
+    imageCell.setAttribute('aria-label', `รูปภาพท่าที่ ${tradeNo} แถว ${i}`);
+
+    const storedImages = Array.isArray(tradeData[i]?.images)
+      ? tradeData[i].images.slice(0,3)
+      : [];
+
+    function renderImageSlots(){
+      imageCell.innerHTML = '';
+
+      for(let slot = 0; slot < 3; slot++){
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'image-slot';
+
+        const src = storedImages[slot];
+
+        if(src){
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = `รูปที่ ${slot + 1} ท่าที่ ${tradeNo} แถว ${i}`;
+          button.appendChild(img);
+
+          const remove = document.createElement('span');
+          remove.className = 'slot-remove';
+          remove.textContent = '×';
+          remove.title = 'ลบรูป';
+          remove.addEventListener('click', e => {
+            e.stopPropagation();
+            storedImages.splice(slot, 1);
+            persistImages();
+            renderImageSlots();
+          });
+          button.appendChild(remove);
+
+          button.addEventListener('click', () => openImage(src));
+        }else{
+          const add = document.createElement('span');
+          add.className = 'slot-add';
+          add.textContent = '+ รูป';
+          button.appendChild(add);
+
+          button.addEventListener('click', () => {
+            if(storedImages.length >= 3) return;
+            fileInput.click();
+          });
+        }
+
+        imageCell.appendChild(button);
+      }
+    }
+
+    function persistImages(){
+      const latest = loadJournalData();
+      latest[tradeNo] ||= {};
+      latest[tradeNo][i] ||= {};
+      latest[tradeNo][i].images = storedImages;
+      saveJournalData(latest);
+    }
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.multiple = false;
+    fileInput.style.display = 'none';
+
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files?.[0];
+      fileInput.value = '';
+      if(!file || storedImages.length >= 3) return;
+
+      try{
+        const compressed = await compressImage(file);
+        storedImages.push(compressed);
+        persistImages();
+        renderImageSlots();
+      }catch(err){
+        alert('ไม่สามารถเพิ่มรูปภาพนี้ได้');
+      }
+    });
+
+    imageTd.appendChild(imageCell);
+    imageTd.appendChild(fileInput);
+    tr.appendChild(imageTd);
+
+    journalBody.appendChild(tr);
+    renderImageSlots();
+  }
+}
+
+const strategyGallery = document.getElementById('strategyGallery');
+const strategyGalleryTitle = document.getElementById('strategyGalleryTitle');
+const strategySlots = document.getElementById('strategySlots');
+const journalWrap = document.querySelector('.journal-wrap');
+const STRATEGY_IMAGE_KEY = 'trade-strategy-images';
+
+function loadStrategyImages(){
+  try { return JSON.parse(localStorage.getItem(STRATEGY_IMAGE_KEY)) || {}; }
+  catch(e) { return {}; }
+}
+function saveStrategyImages(data){
+  try { localStorage.setItem(STRATEGY_IMAGE_KEY, JSON.stringify(data)); }
+  catch(e) { alert('พื้นที่จัดเก็บรูปภาพไม่เพียงพอ กรุณาเลือกรูปที่มีขนาดเล็กลง'); }
+}
+function updateStrategyButton(tradeNo){
+  const allImages = loadStrategyImages();
+  const images = Array.isArray(allImages[tradeNo]) ? allImages[tradeNo] : [];
+  const hasImage = images.some(src => typeof src === 'string' && src.length > 0);
+  const button = document.querySelector(`[data-go=\"left-${tradeNo}\"]`);
+  if(button) button.classList.toggle('has-strategy-images', hasImage);
+}
+function updateAllStrategyButtons(){ for(let i=1;i<=7;i++) updateStrategyButton(i); }
+function buildStrategyGallery(tradeNo){
+  strategyGalleryTitle.textContent = 'ท่าที่ ' + tradeNo;
+  strategySlots.innerHTML = '';
+  const allImages = loadStrategyImages();
+  const images = Array.isArray(allImages[tradeNo]) ? allImages[tradeNo].slice(0,3) : [];
+
+  for(let slot = 0; slot < 3; slot++){
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'strategy-slot';
+    const src = images[slot];
+    if(src){
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = `รูปที่ ${slot + 1} ท่าที่ ${tradeNo}`;
+      button.appendChild(img);
+      button.title = 'กดเพื่อดูภาพเต็มจอ';
+      button.addEventListener('click', () => openImage(src));
+      const remove = document.createElement('span');
+      remove.className = 'strategy-remove';
+      remove.textContent = '×';
+      remove.title = 'ลบรูปภาพ';
+      remove.addEventListener('click', e => {
+        e.stopPropagation();
+        const latest = loadStrategyImages();
+        latest[tradeNo] ||= [];
+        latest[tradeNo][slot] = null;
+        saveStrategyImages(latest);
+        updateStrategyButton(tradeNo);
+        buildStrategyGallery(tradeNo);
+      });
+      button.appendChild(remove);
+    }else{
+      button.innerHTML = '<span class="strategy-add">＋<br>เลือกรูปภาพ</span>';
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = 'image/*'; input.hidden = true;
+      input.addEventListener('change', async () => {
+        const file = input.files && input.files[0];
+        if(!file) return;
+        try{
+          const compressed = await compressImage(file);
+          const latest = loadStrategyImages();
+          latest[tradeNo] ||= [];
+          latest[tradeNo][slot] = compressed;
+          saveStrategyImages(latest);
+          updateStrategyButton(tradeNo);
+          buildStrategyGallery(tradeNo);
+        }catch(err){ alert('ไม่สามารถเพิ่มรูปภาพนี้ได้'); }
+      });
+      button.appendChild(input);
+      button.addEventListener('click', () => input.click());
+    }
+    strategySlots.appendChild(button);
+  }
+}
+
+function compressImage(file){
+  return new Promise((resolve,reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const img = new Image();
+
+      img.onload = () => {
+        const maxSide = 1400;
+        const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const result = canvas.toDataURL('image/jpeg', .78);
+        resolve(result);
+      };
+
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 function route(){
-  const isBlank = /^(left|right)-[1-7]$/.test(location.hash.slice(1));
+  const hash = location.hash.slice(1);
+  const isJournal = /^right-[1-7]$/.test(hash);
+  const isLeft = /^left-[1-7]$/.test(hash);
+  const isBlank = isJournal || isLeft;
+
   home.classList.toggle('active', !isBlank);
   blank.classList.toggle('active', isBlank);
+  strategyGallery.classList.toggle('active', isLeft);
+  journalWrap.style.display = isLeft ? 'none' : '';
+
+  if(isJournal){
+    buildJournal(Number(hash.split('-')[1]));
+  } else if(isLeft){
+    buildStrategyGallery(Number(hash.split('-')[1]));
+  }
+
   window.scrollTo(0,0);
 }
 
@@ -339,8 +1039,8 @@ const viewer = document.getElementById('viewer');
 const viewerImage = document.getElementById('viewerImage');
 const viewerClose = document.getElementById('viewerClose');
 
-function openImage(){
-  viewerImage.src = tradeImage;
+function openImage(src = tradeImage){
+  viewerImage.src = src;
   viewer.classList.add('open');
   viewer.setAttribute('aria-hidden','false');
   document.body.style.overflow = 'hidden';
@@ -353,13 +1053,6 @@ function closeImage(){
 }
 
 list.addEventListener('click', e => {
-
-  const imageButton = e.target.closest('[data-image="1"]');
-
-  if(imageButton){
-    openImage();
-    return;
-  }
 
   const b = e.target.closest('[data-go]');
 
@@ -385,7 +1078,46 @@ document.getElementById('backBtn').addEventListener('click', () => {
 });
 
 window.addEventListener('hashchange', route);
+updateAllStrategyButtons();
 route();
+</script>
+
+
+<script>
+/* Public viewer mode: append ?view=1 to the URL to prevent editing. */
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('view') !== '1') return;
+  document.documentElement.classList.add('public-view-mode');
+  const lockEditors = () => {
+    document.querySelectorAll('input, textarea, select').forEach(el => {
+      // Keep search/navigation controls usable if any exist; lock actual form editors.
+      if (el.type === 'file') { el.disabled = true; return; }
+      el.readOnly = true;
+      if (el.tagName === 'SELECT') el.disabled = true;
+      el.setAttribute('aria-readonly', 'true');
+      el.title = 'โหมดดูอย่างเดียว';
+    });
+    document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+      el.setAttribute('contenteditable', 'false');
+    });
+    document.querySelectorAll('button').forEach(btn => {
+      const label = ((btn.getAttribute('aria-label') || '') + ' ' + (btn.title || '') + ' ' + (btn.textContent || '')).toLowerCase();
+      // Preserve image preview / close / navigation actions; disable actions that modify data.
+      if (/ลบ|remove|delete|เพิ่มรูป|อัปโหลด|upload|เลือกไฟล์|save|บันทึก|reset|clear/.test(label)) {
+        btn.disabled = true;
+        btn.setAttribute('aria-disabled', 'true');
+      }
+    });
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', lockEditors, { once: true });
+  } else {
+    lockEditors();
+  }
+  const observer = new MutationObserver(lockEditors);
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+})();
 </script>
 
 </body>
