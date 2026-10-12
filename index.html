@@ -1281,7 +1281,27 @@ sharedRef.on("value", snapshot => {
       updateAllStrategyButtons();
     }
     const hash = location.hash.slice(1);
-    if (/^right-(?:[1-9]|1[01])$/.test(hash)) buildJournal(Number(hash.split("-")[1]));
+    if (/^right-(?:[1-9]|1[01])$/.test(hash)) {
+      const activeTradeNo = Number(hash.split("-")[1]);
+      // Firebase emits a value event after every keystroke. Do not rebuild the
+      // whole table while the same trade is open, otherwise the input loses focus.
+      const headingTradeNo = Number((journalHeading.textContent || '').replace(/\D/g, ''));
+      if (headingTradeNo !== activeTradeNo || !journalBody.children.length) {
+        buildJournal(activeTradeNo);
+      } else if (journalToApply && typeof journalToApply === 'object') {
+        // Keep other connected browsers in sync without stealing focus from
+        // the field currently being edited on this browser.
+        const currentTradeData = journalToApply[activeTradeNo] || {};
+        journalBody.querySelectorAll('input[data-row][data-field]').forEach(fieldInput => {
+          if (fieldInput === document.activeElement) return;
+          const rowData = currentTradeData[fieldInput.dataset.row] || {};
+          const remoteValue = rowData[fieldInput.dataset.field] || '';
+          if (fieldInput.value !== String(remoteValue)) fieldInput.value = remoteValue;
+        });
+        updateTpTotals(currentTradeData);
+        updateWinrates(currentTradeData);
+      }
+    }
     if (/^left-(?:[1-9]|1[01])$/.test(hash)) buildStrategyGallery(Number(hash.split("-")[1]));
   } catch(err) {
     console.error("Could not apply Firebase data:", err);
