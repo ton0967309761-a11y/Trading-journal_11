@@ -285,6 +285,24 @@ ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:11px}
   box-shadow:var(--shadow);
   scrollbar-color:rgba(182,154,99,.35) #0b0b0b;
 }
+/* Fixed bottom gold scrollbar: viewport-anchored, not part of page/table scrolling */
+body > .journal-bottom-scroll,
+body > .journal-bottom-scroll.visible{
+  position:fixed !important; left:10px !important; right:10px !important;
+  bottom:8px !important; top:auto !important;
+  z-index:2147483647 !important; margin:0 !important; transform:none !important;
+}
+.journal-bottom-scroll{
+  display:none; position:fixed !important; left:10px; right:10px;
+  bottom:8px !important; top:auto !important; z-index:2147483647;
+  height:18px; border:1px solid rgba(218,174,68,.85); border-radius:10px;
+  background:rgba(12,10,6,.97); box-shadow:0 3px 18px rgba(0,0,0,.75),0 0 12px rgba(212,169,67,.16);
+  touch-action:none; user-select:none; cursor:pointer;
+}
+.journal-bottom-scroll.visible{display:block !important; position:fixed !important; bottom:8px !important; top:auto !important; z-index:2147483647;}
+.journal-bottom-scroll-inner{position:absolute;left:0;top:3px;height:10px;width:30%;min-width:36px;border-radius:8px;background:linear-gradient(90deg,#9e7828,#ffe19a,#b68a2f);border:1px solid #f6d779;box-shadow:0 0 7px rgba(212,169,67,.5);cursor:grab}
+.journal-bottom-scroll-inner:active{cursor:grabbing}
+@media(max-width:700px){.journal-bottom-scroll{left:6px;right:6px;height:20px}.journal-bottom-scroll-inner{top:4px;height:10px}}
 .journal-table{
   width:100%;
   min-width:900px;
@@ -373,6 +391,10 @@ ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:11px}
 
 /* Image column (column 9) */
 .journal-table th:nth-child(10){width:220px}
+/* Note column added at the far right; existing columns stay unchanged */
+.journal-table th:nth-child(11),.journal-table td:nth-child(11){width:340px;min-width:340px}
+.journal-table .note-field{display:block;width:100%;min-width:320px;height:34px;min-height:34px;padding:6px 9px;box-sizing:border-box;resize:vertical;border:1px solid rgba(182,154,99,.22);border-radius:8px;outline:none;background:rgba(255,255,255,.025);color:var(--text);font-family:"Inter","Mali",system-ui,sans-serif;font-size:.72rem;line-height:1.35}
+.journal-table .note-field:focus{background:rgba(182,154,99,.045);border-color:rgba(182,154,99,.45);box-shadow:0 0 0 3px rgba(182,154,99,.05)}
 .image-cell{
   display:flex;
   align-items:center;
@@ -543,19 +565,22 @@ body>*{position:relative;z-index:1}
 .image-slot:hover{border-color:#ffdf83;box-shadow:0 0 13px rgba(218,174,68,.13)}
 .back,.viewer-close{border-color:rgba(218,174,68,.4);color:#f0d58d;box-shadow:0 8px 28px rgba(0,0,0,.5),0 0 12px rgba(218,174,68,.08)}
 /* Bright but elegant gold sparkles visible across the first/home page */
-body:before{z-index:0;pointer-events:none;}
-.title,.row{position:relative;}
-.title:before,.row:before{content:"✦";position:absolute;z-index:3;pointer-events:none;color:#ffe6a0;font-size:13px;text-shadow:0 0 5px #ffbf28,0 0 12px #ffb000,0 0 22px rgba(255,191,45,.95);animation:goldStarPulse 2.2s ease-in-out infinite;}
-.title:before{right:10%;top:12%;font-size:17px;}
-.row:nth-of-type(odd):before{right:13px;top:13px;}
-.row:nth-of-type(even):before{right:34px;bottom:15px;animation-delay:.8s;}
-@keyframes goldStarPulse{0%,100%{opacity:.35;transform:scale(.72) rotate(0deg)}50%{opacity:1;transform:scale(1.35) rotate(45deg)}}
-@media(prefers-reduced-motion:reduce){body:after,.tp-summary-card:before,.winrate-summary-card:before,.title:before,.row:before{animation:none!important}}
+
+
+
+/* Gold particle galaxy: particle-only spiral, no streaks or lines */
+#goldGalaxyCanvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.98;}
+#home{position:relative;isolation:isolate;background:transparent;}
+#home>*{position:relative;z-index:1;}
+/* keep all journal content above the decorative canvas */
+.journal-page{position:relative;z-index:1;}
+@media(prefers-reduced-motion:reduce){#goldGalaxyCanvas{opacity:.65}}
 
 </style>
 </head>
 
 <body>
+<canvas id="goldGalaxyCanvas" aria-hidden="true"></canvas>
 
 <main id="home" class="page active">
   <header class="title">
@@ -609,6 +634,7 @@ body:before{z-index:0;pointer-events:none;}
             <th>TP2</th>
             <th>TP3</th>
             <th>รูปภาพ</th>
+            <th>Note</th>
           </tr>
         </thead>
         <tbody id="journalBody"></tbody>
@@ -616,6 +642,11 @@ body:before{z-index:0;pointer-events:none;}
     </div>
   </div>
 </section>
+
+<!-- Always-accessible horizontal scrollbar for the journal table -->
+<div class="journal-bottom-scroll" id="journalBottomScroll" aria-label="เลื่อนตารางแนวนอน" role="scrollbar" aria-orientation="horizontal" tabindex="0">
+  <div class="journal-bottom-scroll-inner" id="journalBottomScrollInner"></div>
+</div>
 
 <!-- Fullscreen image viewer -->
 <div class="viewer" id="viewer" aria-hidden="true">
@@ -677,7 +708,7 @@ const save = () => {
   queueSharedWrite('names', names);
 };
 
-for(let i = 1; i <= 7; i++){
+for(let i = 1; i <= 11; i++){
 
   const def = 'ท่าที่ ' + i;
   const li = document.createElement('li');
@@ -822,7 +853,7 @@ function buildJournal(tradeNo){
       input.dataset.field = field;
       input.setAttribute('aria-label', `ท่าที่ ${tradeNo} แถว ${i} ${field}`);
       // แก้เฉพาะช่อง Result แถว 47–48 ของท่าที่ 1–7 ให้รับการคลิกได้แน่นอน
-      if(field === 'result' && (i === 47 || i === 48) && tradeNo >= 1 && tradeNo <= 7){
+      if(field === 'result' && (i === 47 || i === 48) && tradeNo >= 1 && tradeNo <= 11){
         input.classList.add('result-row-47-48-fix');
         td.classList.add('result-cell-47-48-fix');
       }
@@ -928,15 +959,95 @@ function buildJournal(tradeNo){
     imageTd.appendChild(fileInput);
     tr.appendChild(imageTd);
 
+    // Note: independent for each setup and row 1–100, saved and shared with journal data.
+    const noteTd = document.createElement('td');
+    const noteField = document.createElement('textarea');
+    noteField.className = 'note-field';
+    noteField.rows = 1;
+    noteField.maxLength = 2000;
+    noteField.value = tradeData[i]?.note || '';
+    noteField.placeholder = 'Note (ประมาณ 30 คำ)';
+    noteField.setAttribute('aria-label', `ท่าที่ ${tradeNo} แถว ${i} Note`);
+    noteField.addEventListener('input', () => {
+      const latest = loadJournalData();
+      latest[tradeNo] ||= {};
+      latest[tradeNo][i] ||= {};
+      latest[tradeNo][i].note = noteField.value;
+      saveJournalData(latest);
+    });
+    noteTd.appendChild(noteField);
+    tr.appendChild(noteTd);
+
     journalBody.appendChild(tr);
     renderImageSlots();
   }
+  requestAnimationFrame(refreshJournalBottomScroll);
 }
 
 const strategyGallery = document.getElementById('strategyGallery');
 const strategyGalleryTitle = document.getElementById('strategyGalleryTitle');
 const strategySlots = document.getElementById('strategySlots');
 const journalWrap = document.querySelector('.journal-wrap');
+const journalTableShell = document.querySelector('.journal-table-shell');
+const journalBottomScroll = document.getElementById('journalBottomScroll');
+const journalBottomScrollInner = document.getElementById('journalBottomScrollInner');
+// Keep the gold scrollbar anchored to the browser viewport, independent of the journal page layout.
+if (journalBottomScroll && journalBottomScroll.parentElement !== document.documentElement) document.documentElement.appendChild(journalBottomScroll);
+let syncingJournalScroll = false;
+
+function refreshJournalBottomScroll(){
+  if(!journalTableShell || !journalBottomScroll || !journalBottomScrollInner) return;
+  // Detect the journal from the rendered table itself, not only the URL hash.
+  // This keeps the viewport scrollbar visible when GitHub Pages/browser restores a route differently.
+  const tableRect = journalTableShell.getBoundingClientRect();
+  const isJournal = !!(tableRect.width > 0 && tableRect.height > 0 && journalTableShell.getClientRects().length > 0);
+  const maxScroll = Math.max(0, journalTableShell.scrollWidth - journalTableShell.clientWidth);
+  const trackWidth = journalBottomScroll.clientWidth;
+  const hasHorizontalOverflow = maxScroll > 1;
+  journalBottomScroll.classList.toggle('visible', isJournal && hasHorizontalOverflow);
+  if (isJournal && hasHorizontalOverflow) { journalBottomScroll.style.setProperty('position','fixed','important'); journalBottomScroll.style.setProperty('left','10px','important'); journalBottomScroll.style.setProperty('right','10px','important'); journalBottomScroll.style.setProperty('bottom','8px','important'); journalBottomScroll.style.setProperty('top','auto','important'); journalBottomScroll.style.setProperty('z-index','2147483647','important'); }
+  if(!hasHorizontalOverflow){ journalBottomScrollInner.style.width='30%'; journalBottomScrollInner.style.left='0px'; return; }
+  const thumbWidth = Math.max(36, trackWidth * journalTableShell.clientWidth / journalTableShell.scrollWidth);
+  const maxThumbLeft = Math.max(0, trackWidth - thumbWidth - 2);
+  const thumbLeft = maxScroll ? (journalTableShell.scrollLeft / maxScroll) * maxThumbLeft : 0;
+  journalBottomScrollInner.style.width = `${thumbWidth}px`;
+  journalBottomScrollInner.style.left = `${thumbLeft}px`;
+}
+function setJournalScrollFromPointer(clientX, centerThumb=true){
+  const rect = journalBottomScroll.getBoundingClientRect();
+  const thumbWidth = journalBottomScrollInner.getBoundingClientRect().width;
+  const maxLeft = Math.max(0, rect.width - thumbWidth - 2);
+  const left = Math.max(0, Math.min(maxLeft, clientX - rect.left - (centerThumb ? thumbWidth/2 : 0)));
+  const maxScroll = Math.max(0, journalTableShell.scrollWidth - journalTableShell.clientWidth);
+  journalTableShell.scrollLeft = maxLeft ? (left / maxLeft) * maxScroll : 0;
+  refreshJournalBottomScroll();
+}
+let draggingJournalThumb = false;
+journalBottomScroll.addEventListener('pointerdown', e => {
+  if(!journalBottomScroll.classList.contains('visible')) return;
+  draggingJournalThumb = true;
+  journalBottomScroll.setPointerCapture(e.pointerId);
+  const isThumb = e.target === journalBottomScrollInner;
+  setJournalScrollFromPointer(e.clientX, !isThumb);
+  e.preventDefault();
+});
+journalBottomScroll.addEventListener('pointermove', e => { if(draggingJournalThumb) setJournalScrollFromPointer(e.clientX); });
+function stopJournalThumbDrag(){draggingJournalThumb=false;}
+journalBottomScroll.addEventListener('pointerup', stopJournalThumbDrag);
+journalBottomScroll.addEventListener('pointercancel', stopJournalThumbDrag);
+journalTableShell.addEventListener('scroll', refreshJournalBottomScroll, {passive:true});
+journalBottomScroll.addEventListener('keydown', e => {
+  if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key)) return;
+  e.preventDefault(); const step=Math.max(80,journalTableShell.clientWidth*.18);
+  if(e.key==='ArrowLeft') journalTableShell.scrollLeft-=step;
+  if(e.key==='ArrowRight') journalTableShell.scrollLeft+=step;
+  if(e.key==='Home') journalTableShell.scrollLeft=0;
+  if(e.key==='End') journalTableShell.scrollLeft=journalTableShell.scrollWidth;
+  refreshJournalBottomScroll();
+});
+if('ResizeObserver' in window){const journalScrollResizeObserver=new ResizeObserver(refreshJournalBottomScroll);journalScrollResizeObserver.observe(journalTableShell);journalScrollResizeObserver.observe(document.documentElement);}
+window.addEventListener('resize',refreshJournalBottomScroll,{passive:true});
+window.addEventListener('hashchange',()=>requestAnimationFrame(refreshJournalBottomScroll));
 const STRATEGY_IMAGE_KEY = 'trade-strategy-images';
 
 function loadStrategyImages(){
@@ -1043,8 +1154,8 @@ function compressImage(file){
 
 function route(){
   const hash = location.hash.slice(1);
-  const isJournal = /^right-[1-7]$/.test(hash);
-  const isLeft = /^left-[1-7]$/.test(hash);
+  const isJournal = /^right-(?:[1-9]|1[01])$/.test(hash);
+  const isLeft = /^left-(?:[1-9]|1[01])$/.test(hash);
   const isBlank = isJournal || isLeft;
 
   home.classList.toggle('active', !isBlank);
@@ -1059,6 +1170,7 @@ function route(){
   }
 
   window.scrollTo(0,0);
+  requestAnimationFrame(refreshJournalBottomScroll);
 }
 
 /* Fullscreen image */
@@ -1125,7 +1237,7 @@ sharedRef.on("value", snapshot => {
   let migratedJournal = remote.journal && typeof remote.journal === "object" ? remote.journal : null;
   if (!migratedJournal) {
     const oldJournal = {};
-    for (let i = 1; i <= 7; i++) {
+    for (let i = 1; i <= 11; i++) {
       const oldTechnique = remote["technique-" + i];
       if (oldTechnique && oldTechnique.rows && typeof oldTechnique.rows === "object") {
         oldJournal[i] = oldTechnique.rows;
@@ -1169,8 +1281,8 @@ sharedRef.on("value", snapshot => {
       updateAllStrategyButtons();
     }
     const hash = location.hash.slice(1);
-    if (/^right-[1-7]$/.test(hash)) buildJournal(Number(hash.split("-")[1]));
-    if (/^left-[1-7]$/.test(hash)) buildStrategyGallery(Number(hash.split("-")[1]));
+    if (/^right-(?:[1-9]|1[01])$/.test(hash)) buildJournal(Number(hash.split("-")[1]));
+    if (/^left-(?:[1-9]|1[01])$/.test(hash)) buildStrategyGallery(Number(hash.split("-")[1]));
   } catch(err) {
     console.error("Could not apply Firebase data:", err);
   } finally {
@@ -1217,5 +1329,58 @@ sharedRef.on("value", snapshot => {
 })();
 </script>
 
+
+<script>
+/* Gold galaxy dust: dense spiral particles orbit counter-clockwise and drift inward. */
+(()=>{
+ const canvas=document.getElementById('goldGalaxyCanvas'); if(!canvas) return;
+ const ctx=canvas.getContext('2d',{alpha:true}); if(!ctx) return;
+ let w=0,h=0,dpr=1,particles=[],raf=0,last=0;
+ const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const rand=(a,b)=>a+Math.random()*(b-a);
+ function resize(){
+   dpr=Math.min(window.devicePixelRatio||1,1.15); w=window.innerWidth; h=window.innerHeight;
+   canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);
+   const count=Math.max(420,Math.min(950,Math.floor(w*h/1050)));
+   particles=[];
+   for(let i=0;i<count;i++){
+     const arm=Math.floor(Math.random()*4), radius=Math.pow(Math.random(),.72)*Math.min(w,h)*.49;
+     const angle=arm*Math.PI/2 + radius*.019 + rand(-.24,.24);
+     particles.push({r:radius,a:angle,arm,s:rand(.35,1.65)*(Math.random()<.045?2.2:1),alpha:rand(.18,.9),speed:rand(.00007,.00020),phase:rand(0,Math.PI*2),inward:rand(.025,.12),warm:Math.random()});
+   }
+ }
+ function draw(t){
+   if(!canvas.isConnected) return;
+   const dt=Math.min(40,t-(last||t));last=t;
+   ctx.clearRect(0,0,w,h);
+   const cx=w*.5,cy=h*.5,scale=Math.min(w,h);
+   // Soft, compact luminous core; no beams or line effects.
+   const core=ctx.createRadialGradient(cx,cy,0,cx,cy,scale*.17);
+   core.addColorStop(0,'rgba(255,250,220,.92)');core.addColorStop(.025,'rgba(255,211,104,.55)');core.addColorStop(.12,'rgba(255,177,42,.13)');core.addColorStop(1,'rgba(255,170,25,0)');
+   ctx.fillStyle=core;ctx.fillRect(cx-scale*.18,cy-scale*.18,scale*.36,scale*.36);
+   const moving=!reduce;
+   for(const p of particles){
+     if(moving){p.a-=p.speed*dt*1.45; p.r-=p.inward*dt*.10; if(p.r<3){p.r=scale*.46+Math.random()*scale*.06;p.a=rand(0,Math.PI*2);}}
+     const spiral=p.a + p.r*.018;
+     const spread=(p.r/scale)*.11;
+     const x=cx+Math.cos(spiral)*p.r + Math.cos(p.a*2.7+p.phase)*spread*scale;
+     const y=cy+Math.sin(spiral)*p.r*.68 + Math.sin(p.a*2.7+p.phase)*spread*scale*.68;
+     const twinkle=.58+.42*Math.sin(t*.0015+p.phase);
+     const radius=p.s*(.45+Math.min(1,p.r/(scale*.12))*.6);
+     const alpha=Math.max(.08,Math.min(1,p.alpha*twinkle));
+     ctx.globalAlpha=alpha;
+     ctx.fillStyle=p.warm>.84?'#fff0b0':p.warm>.45?'#ffd36a':'#ffb92f';
+     /* Avoid per-particle shadow blur: it is expensive on large canvases. */
+     ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);ctx.fill();
+   }
+   ctx.globalAlpha=1;
+   raf=requestAnimationFrame(draw);
+ }
+ resize();
+ window.addEventListener('resize',resize,{passive:true});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);last=0;}else if(!raf||!document.hidden){last=0;raf=requestAnimationFrame(draw);}});
+ raf=requestAnimationFrame(draw);
+})();
+</script>
 </body>
 </html>
