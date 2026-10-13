@@ -1065,7 +1065,7 @@ function updateStrategyButton(tradeNo){
   const button = document.querySelector(`[data-go=\"left-${tradeNo}\"]`);
   if(button) button.classList.toggle('has-strategy-images', hasImage);
 }
-function updateAllStrategyButtons(){ for(let i=1;i<=7;i++) updateStrategyButton(i); }
+function updateAllStrategyButtons(){ for(let i=1;i<=11;i++) updateStrategyButton(i); }
 function buildStrategyGallery(tradeNo){
   strategyGalleryTitle.textContent = 'ท่าที่ ' + tradeNo;
   strategySlots.innerHTML = '';
